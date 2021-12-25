@@ -1,16 +1,21 @@
 package com.example.tradesimulator.controller;
 
 import com.example.tradesimulator.model.StockInfo;
+import com.example.tradesimulator.model.Stock;
+import com.example.tradesimulator.model.dto.StockPayloadDto;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.server.MethodNotAllowedException;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
@@ -51,7 +56,13 @@ public class StockService {
                 .build();
     }
 
-    public Mono<StockInfo> retrieveStockInfo(String ticker, Date fromDate, Date toDate) {
+
+    @SneakyThrows //TODO: REMOVE
+    public Publisher<StockInfo> retrieveStockInfo(StockPayloadDto stockPayload) {
+        throw new NoSuchMethodException();
+    }
+
+    private Mono<StockInfo> retrieveStockInfo(String ticker, Date fromDate, Date toDate) {
         if (fromDate.after(toDate)) {
             return Mono.error(new IllegalArgumentException("From date cannot be after To date"));
         }
@@ -69,6 +80,7 @@ public class StockService {
         return webClient.get()
                 .uri(uriBuilder ->
                         uriBuilder.path("/v1/eod")
+                                //TODO: Add to propreties file
                                 .queryParam("access_key", "f38058bbc679eec0113e6c62e19ba31a")
                                 .queryParam("symbols", ticker)
                                 .queryParam("date_from", from)

@@ -1,15 +1,12 @@
 package com.example.tradesimulator.controller;
 
 import com.example.tradesimulator.model.StockInfo;
+import com.example.tradesimulator.model.dto.StockPayloadDto;
 import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Mono;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
+import javax.validation.Valid;
 
 @RestController
 public class StockController {
@@ -21,15 +18,8 @@ public class StockController {
         this.stockService = stockService;
     }
 
-    @GetMapping("/stock")
-    public Publisher<StockInfo> retrieveStockData(@RequestParam("ticker") String ticker,
-                                                  @RequestParam("from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date fromDate,
-                                                  @RequestParam("to") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date toDate){
-        return stockService.retrieveStockInfo(ticker, fromDate, toDate);
-    }
-
-    @GetMapping("/")
-    public Publisher<String> helloWorld(){
-        return Mono.just("Hello World");
+    @PostMapping("/stock")
+    public Publisher<StockInfo> retrieveStockData(@Valid @RequestBody StockPayloadDto stockPayload){
+        return stockService.retrieveStockInfo(stockPayload);
     }
 }
