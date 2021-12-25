@@ -1,7 +1,7 @@
 package com.example.tradesimulator.controller;
 
+import com.example.tradesimulator.configuration.StockServiceConfig;
 import com.example.tradesimulator.model.StockInfo;
-import com.example.tradesimulator.model.Stock;
 import com.example.tradesimulator.model.dto.StockPayloadDto;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
@@ -9,13 +9,11 @@ import io.netty.handler.timeout.WriteTimeoutHandler;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.server.MethodNotAllowedException;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
@@ -34,22 +32,22 @@ public class StockService {
 
     private final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
-
     private final WebClient webClient;
     private final StockRepository stockRepository;
+    private final StockServiceConfig stockServiceConfig;
 
-    @Autowired
-    public StockService(StockRepository stockRepository) {
+    public StockService(StockRepository stockRepository, StockServiceConfig stockServiceConfig) {
         this.stockRepository = stockRepository;
+        this.stockServiceConfig = stockServiceConfig;
         HttpClient httpClient = HttpClient.create()
                 .doOnConnected(conn -> conn
-                        .addHandlerLast(new ReadTimeoutHandler(3000, TimeUnit.MILLISECONDS))
-                        .addHandlerLast(new WriteTimeoutHandler(3000, TimeUnit.MILLISECONDS))
-                ).option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 3000)
-                .responseTimeout(Duration.of(3, ChronoUnit.SECONDS));
+                        .addHandlerLast(new ReadTimeoutHandler(stockServiceConfig.getRead(), TimeUnit.MILLISECONDS))
+                        .addHandlerLast(new WriteTimeoutHandler(stockServiceConfig.getWrite(), TimeUnit.MILLISECONDS))
+                ).option(ChannelOption.CONNECT_TIMEOUT_MILLIS, stockServiceConfig.getConnect())
+                .responseTimeout(Duration.of(stockServiceConfig.getResponse(), ChronoUnit.SECONDS));
 
         this.webClient = WebClient.builder()
-                .baseUrl("http://api.marketstack.com")
+                .baseUrl(stockServiceConfig.getBaseUrl())
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .clientConnector(new ReactorClientHttpConnector(httpClient))  // timeout
@@ -79,9 +77,9 @@ public class StockService {
 
         return webClient.get()
                 .uri(uriBuilder ->
-                        uriBuilder.path("/v1/eod")
-                                //TODO: Add to propreties file
-                                .queryParam("access_key", "f38058bbc679eec0113e6c62e19ba31a")
+                        uriBuilder.path(stockServiceConfig.getPath())
+                                //TODO: Add to properties file
+                                .queryParam("access_key", stockServiceConfig.getAccess_key())
                                 .queryParam("symbols", ticker)
                                 .queryParam("date_from", from)
                                 .queryParam("date_to", to)
@@ -106,25 +104,25 @@ public class StockService {
             int initial = -1;
             int last = -1;
             int index = 0;
-            for(StockInfo.StockData stockData : stockList){
+            for (StockInfo.StockData stockData : stockList) {
                 java.sql.Date stockDate = stockData.getDate();
-                if(stockDate.equals(start)){
+                if (stockDate.equals(start)) {
                     initial = index;
-                } else if(initial == -1 && ((stockDate.getTime() - start.getTime())/ (1000 * 60 * 60 * 24)) < 3){
+                } else if (initial == -1 && ((stockDate.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) < 3) {
                     initial = index;
                 }
 
-                if(stockDate.equals(end)){
+                if (stockDate.equals(end)) {
                     last = index;
-                }else if(last == -1 && ((end.getTime() - stockDate.getTime())/ (1000 * 60 * 60 * 24)) < 3){
+                } else if (last == -1 && ((end.getTime() - stockDate.getTime()) / (1000 * 60 * 60 * 24)) < 3) {
                     last = index;
                 }
                 ++index;
             }
 
-            if(initial != -1 && last != -1){
+            if (initial != -1 && last != -1) {
                 data.addAll(stockList.subList(last, initial));
-            } else{
+            } else {
                 log.warn("Stock {} not found from {} to {}", ticker, start, end);
             }
         }, () -> log.warn("Stock {} not found in repository", ticker));
