@@ -1,7 +1,9 @@
 import React, {useState} from "react";
 import "./Dashboard.scss"
-import {Stock, StockPayload} from "../type/types";
+import {Stock, StockPayload} from "../type/StockTypes";
 import {PlusCircle} from "react-feather";
+import { Navigate } from "react-router-dom";
+
 
 const Dashboard = () => {
 
@@ -10,6 +12,7 @@ const Dashboard = () => {
         const [stocks, setStocks] = useState<Stock[]>([emptyStock]);
         const [from, setFrom] = useState<Date>(new Date());
         const [to, setTo] = useState<Date>(new Date(Date.now()));
+        const [payload, setPayload] = useState<StockPayload>();
 
         const addStock = (stock: Stock) => {
             //TODO: No repeating stocks
@@ -51,11 +54,14 @@ const Dashboard = () => {
                 from: from, stocks: stocks, to: to
             }
             console.log("Successfully created:", stockPayload);
+            setPayload(stockPayload)
         }
 
         return (
             <React.Fragment>
                 <h1>Welcome to the dashboard</h1>
+                { payload &&
+                    <Navigate to={"/summary"} state={payload} /> }
                 <form onSubmit={event =>  sendForm(event)}>
                     <div>
                         <label>From: </label>

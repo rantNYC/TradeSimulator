@@ -1,6 +1,7 @@
 package com.example.tradesimulator.controller;
 
 import com.example.tradesimulator.configuration.StockServiceConfig;
+import com.example.tradesimulator.model.Stock;
 import com.example.tradesimulator.model.StockInfo;
 import com.example.tradesimulator.model.dto.StockPayloadDto;
 import io.netty.channel.ChannelOption;
@@ -14,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
@@ -55,9 +57,21 @@ public class StockService {
     }
 
 
-    @SneakyThrows //TODO: REMOVE
     public Publisher<StockInfo> retrieveStockInfo(StockPayloadDto stockPayload) {
-        throw new NoSuchMethodException();
+        Mono<StockInfo> results = null;
+        for(Stock stock : stockPayload.getStocks()){
+            if(results == null) {
+                results = retrieveStockInfo(stock.getSymbol(), stockPayload.getFrom(), stockPayload.getTo());
+            } else{
+                results.concatWith(retrieveStockInfo(stock.getSymbol(), stockPayload.getFrom(), stockPayload.getTo()));
+            }
+        }
+        if(results == null){
+            //TODO: Custom exceptions
+            return Mono.error(new Exception("Stock not found"));
+        }
+
+        return results;
     }
 
     private Mono<StockInfo> retrieveStockInfo(String ticker, Date fromDate, Date toDate) {
