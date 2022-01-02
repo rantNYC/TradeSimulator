@@ -17,6 +17,8 @@ public class StockInfo {
     @JsonProperty
     private List<StockData> data;
 
+    private String ticker;
+
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
