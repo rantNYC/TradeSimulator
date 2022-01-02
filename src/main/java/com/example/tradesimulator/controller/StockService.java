@@ -7,7 +7,6 @@ import com.example.tradesimulator.model.dto.StockPayloadDto;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
 import org.springframework.http.HttpHeaders;
@@ -58,22 +57,21 @@ public class StockService {
 
 
     public Publisher<StockInfo> retrieveStockInfo(StockPayloadDto stockPayload) {
-        Mono<StockInfo> results = null;
-        for(Stock stock : stockPayload.getStocks()){
-            if(results == null) {
-                results = retrieveStockInfo(stock.getSymbol(), stockPayload.getFrom(), stockPayload.getTo());
-            } else{
-                results.concatWith(retrieveStockInfo(stock.getSymbol(), stockPayload.getFrom(), stockPayload.getTo()));
-            }
+        List<Publisher<StockInfo>> results = new ArrayList<>();
+        for (Stock stock : stockPayload.getStocks()) {
+            results.add(retrieveStockInfo(stock.getSymbol(), stockPayload.getFrom(), stockPayload.getTo()));
         }
-        if(results == null){
+
+        if (results.size() == 0) {
             //TODO: Custom exceptions
             return Mono.error(new Exception("Stock not found"));
         }
 
-        return results;
+        return Flux.merge(results);
     }
 
+    //TODO: Retrieve name of ticker using api
+    //https://api.marketstack.com/v1/tickers?access_key=YOUR_ACCESS_KEY
     private Mono<StockInfo> retrieveStockInfo(String ticker, Date fromDate, Date toDate) {
         if (fromDate.after(toDate)) {
             return Mono.error(new IllegalArgumentException("From date cannot be after To date"));
@@ -102,6 +100,7 @@ public class StockService {
                 .retrieve()
                 .bodyToMono(StockInfo.class)
                 .doOnNext(stockInfo -> {
+                    stockInfo.setTicker(ticker);
                     for (StockInfo.StockData data : stockInfo.getData()) {
                         stockRepository.save(data);
                         log.info("Successfully saved {}", data);
@@ -141,6 +140,6 @@ public class StockService {
             }
         }, () -> log.warn("Stock {} not found in repository", ticker));
 
-        return new StockInfo(data);
+        return new StockInfo(data, ticker);
     }
 }

@@ -5,9 +5,12 @@ import {PageStatus, ServerError} from "../type/PageTypes";
 import {Loader} from "react-feather";
 import Router from "../util/Router";
 import axios, {AxiosError} from "axios";
+import Tabs from "../component/Tabs";
+import {TabTableProps} from "../component/TabTable";
 
 export interface StockData {
-    data: StockInfo[]
+    data: StockInfo[],
+    ticker: string,
 }
 
 const Summary = () => {
@@ -16,15 +19,15 @@ const Summary = () => {
     const payload = location.state as StockPayload;
 
     const [status, setStatus] = useState<PageStatus>(PageStatus.Idle);
-    const [data, setData] = useState<StockData>({data: []})
+    const [data, setData] = useState<StockData[]>([])
     useEffect(() => {
         (async () => {
             if (payload !== null && status === PageStatus.Idle) {
                 setStatus(PageStatus.Pending);
                 const res = await getData();
-                if (res as StockData) {
+                if (Array.isArray(res)) {
+                    setData(res);
                     setStatus(PageStatus.Done);
-                    setData(res as StockData);
                 } else {
                     setStatus(PageStatus.Error);
                 }
@@ -34,9 +37,9 @@ const Summary = () => {
         };
     }, [data, status]);
 
-    const getData = async (): Promise<StockData | ServerError> => {
+    const getData = async (): Promise<StockData[] | ServerError> => {
         try {
-            const res = await axios.post<StockData>(
+            const res = await axios.post<StockData[]>(
                 Router.stock(),
                 payload,
             );
@@ -52,6 +55,16 @@ const Summary = () => {
         }
     };
 
+    const createTabStockData = (stocks: StockData[]) => {
+        let tabStockData: TabTableProps[] = [];
+        stocks.forEach((value) => {
+            //TODO: Use security name instead of ticker
+            tabStockData.push({label: value.ticker, name: value.ticker, stockData: value})
+        })
+
+        return tabStockData
+    }
+
     return (
         <div>
             {payload === null && <Navigate to={"/dashboard"}/>}
@@ -59,33 +72,9 @@ const Summary = () => {
             {(status === PageStatus.Error) && <Navigate to={"/dashboard"}/>}
             {status === PageStatus.Done &&
                 <div>
-                    <h1>Stock Summary</h1>
-                    <table>
-                        <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Ticker</th>
-                            <th>Open</th>
-                            <th>Close</th>
-                            <th>Dividend</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {
-                            data.data.map((value, index) => {
-                                return (
-                                    <tr key={index}>
-                                        <td>{value.date}</td>
-                                        <td>{value.symbol}</td>
-                                        <td>{value.open}</td>
-                                        <td>{value.close}</td>
-                                        <td>{value.dividend}</td>
-                                    </tr>
-                                )
-                            })
-                        }
-                        </tbody>
-                    </table>
+                    <Tabs
+                        displayName='Stocks Summary'
+                        tabList={createTabStockData(data)}/>
                 </div>
             }
         </div>

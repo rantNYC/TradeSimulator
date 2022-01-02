@@ -1,8 +1,8 @@
 import React from 'react';
 import './App.css';
 import {BrowserRouter, Route, Routes} from "react-router-dom";
-import Dashboard from "./component/Dashboard";
-import Summary from "./component/Summary";
+import Dashboard from "./feature/Dashboard";
+import Summary from "./feature/Summary";
 
 const App = () => {
     return (
