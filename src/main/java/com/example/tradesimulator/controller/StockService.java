@@ -90,7 +90,6 @@ public class StockService {
         return webClient.get()
                 .uri(uriBuilder ->
                         uriBuilder.path(stockServiceConfig.getPath())
-                                //TODO: Add to properties file
                                 .queryParam("access_key", stockServiceConfig.getAccess_key())
                                 .queryParam("symbols", ticker)
                                 .queryParam("date_from", from)

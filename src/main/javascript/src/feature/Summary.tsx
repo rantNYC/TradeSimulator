@@ -1,12 +1,14 @@
 import {StockInfo, StockPayload} from "../type/StockTypes";
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {Navigate, useLocation} from "react-router-dom";
-import {PageStatus, ServerError} from "../type/PageTypes";
+import {ErrorMessage, PageStatus} from "../type/PageTypes";
 import {Loader} from "react-feather";
 import Router from "../util/Router";
 import axios, {AxiosError} from "axios";
 import Tabs from "../component/Tabs";
 import {TabTableProps} from "../component/TabTable";
+import {useAppDispatch} from "../store/StoreHooks";
+import {addError} from "../store/ErrorReducer";
 
 export interface StockData {
     data: StockInfo[],
@@ -15,11 +17,31 @@ export interface StockData {
 
 const Summary = () => {
 
-    const location = useLocation();
-    const payload = location.state as StockPayload;
+    const dispatch = useAppDispatch();
 
+    const payload = useLocation().state as StockPayload;
     const [status, setStatus] = useState<PageStatus>(PageStatus.Idle);
     const [data, setData] = useState<StockData[]>([])
+
+    const getData = useCallback(async (): Promise<StockData[] | ErrorMessage> => {
+        try {
+            const res = await axios.post<StockData[]>(
+                Router.stock(),
+                payload,
+            );
+            return await res.data;
+        } catch (err) {
+            if (axios.isAxiosError(err)) {
+                const serverError = err as AxiosError<String>;
+                if (serverError && serverError.response) {
+                    return { error: `${serverError.response.data }` };
+                }
+            }
+            return {error: "Something went wrong!"};
+        }
+    }, [payload]);
+
+
     useEffect(() => {
         (async () => {
             if (payload !== null && status === PageStatus.Idle) {
@@ -29,31 +51,16 @@ const Summary = () => {
                     setData(res);
                     setStatus(PageStatus.Done);
                 } else {
+                    dispatch(addError(res))
                     setStatus(PageStatus.Error);
                 }
             }
         })();
         return () => { // Runs when component will unmount
+            setData([]);
+            setStatus(() => PageStatus.Idle);
         };
-    }, [data, status]);
-
-    const getData = async (): Promise<StockData[] | ServerError> => {
-        try {
-            const res = await axios.post<StockData[]>(
-                Router.stock(),
-                payload,
-            );
-            return await res.data;
-        } catch (err) {
-            if (axios.isAxiosError(err)) {
-                const serverError = err as AxiosError<ServerError>;
-                if (serverError && serverError.response) {
-                    return serverError.response.data;
-                }
-            }
-            return {error: "Something went wrong!"};
-        }
-    };
+    }, [getData, payload, dispatch]);
 
     const createTabStockData = (stocks: StockData[]) => {
         let tabStockData: TabTableProps[] = [];
@@ -67,9 +74,9 @@ const Summary = () => {
 
     return (
         <div>
-            {payload === null && <Navigate to={"/dashboard"}/>}
+            {payload === undefined && <Navigate to={"/dashboard"}/>}
             {(status === PageStatus.Idle || status === PageStatus.Pending) && <Loader/>}
-            {(status === PageStatus.Error) && <Navigate to={"/dashboard"}/>}
+            {(status === PageStatus.Error) && <Navigate to={"/dashboard"} />}
             {status === PageStatus.Done &&
                 <div>
                     <Tabs

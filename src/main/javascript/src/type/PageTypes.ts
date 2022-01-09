@@ -5,7 +5,9 @@ export enum PageStatus {
     Error
 }
 
-export type ServerError = { error: string; };
+export type ErrorMessage = {
+    error: string;
+};
 
 export interface TabProps{
     name: string,
