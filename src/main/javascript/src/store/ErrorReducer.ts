@@ -8,6 +8,7 @@ interface ErrorProps {
 
 const emptyErrors: ErrorProps = {errors: []}
 
+//TODO: Max number of errors that can be displayed
 const errorSlice = createSlice({
     name: 'Errors',
     initialState: emptyErrors,

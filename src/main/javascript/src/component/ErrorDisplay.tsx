@@ -5,8 +5,6 @@ import './ErrorDisplay.scss';
 import {clearErrors, errorSelector, removeError} from "../store/ErrorReducer";
 import {useAppDispatch, useAppSelector} from "../store/StoreHooks";
 
-
-
 const ErrorDisplay = () => {
 
     const dispatch = useAppDispatch();
