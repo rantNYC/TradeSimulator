@@ -5,7 +5,6 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.sql.Date;
 import java.util.List;
 
 @Data
@@ -32,7 +31,7 @@ public class StockInfo {
         @Id
         @JsonProperty
         @Column
-        private Date date;
+        private String date;
         @Id
         @JsonProperty
         @Column
@@ -55,6 +54,6 @@ public class StockInfo {
         @JsonProperty
         private String symbol;
         @JsonProperty
-        private Date date;
+        private String date;
     }
 }
