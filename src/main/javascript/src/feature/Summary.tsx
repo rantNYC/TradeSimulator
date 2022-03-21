@@ -26,15 +26,15 @@ const Summary = () => {
     const getData = useCallback(async (): Promise<StockData[] | ErrorMessage> => {
         try {
             const res = await axios.post<StockData[]>(
-                Router.stock(),
+                Router.STOCK,
                 payload,
             );
             return await res.data;
         } catch (err) {
             if (axios.isAxiosError(err)) {
-                const serverError = err as AxiosError<String>;
+                const serverError = err as AxiosError<any>;
                 if (serverError && serverError.response) {
-                    return { error: `${serverError.response.data }` };
+                    return { error: `${serverError.response.data.message }` };
                 }
             }
             return {error: "Something went wrong!"};
@@ -48,6 +48,7 @@ const Summary = () => {
                 setStatus(PageStatus.Pending);
                 const res = await getData();
                 if (Array.isArray(res)) {
+                    console.log("Results:", res);
                     setData(res);
                     setStatus(PageStatus.Done);
                 } else {

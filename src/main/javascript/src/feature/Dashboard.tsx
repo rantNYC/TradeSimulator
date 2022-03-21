@@ -68,9 +68,9 @@ const Dashboard = () => {
         const stockPayload: StockPayload = {
             from: from, stocks: stocks, to: to
         }
-        navigate('/summary', { state: {
-                stockPayload: stockPayload,
-            } });
+        navigate('/summary', {
+            state: stockPayload,
+        });
     }
 
     return (

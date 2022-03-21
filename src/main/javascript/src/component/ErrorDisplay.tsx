@@ -13,7 +13,6 @@ const ErrorDisplay = () => {
     useEffect(() => {
         const timeout = setTimeout(() => {
             if (errors.length > 0){
-                console.log('Removing error');
                 dispatch(clearErrors())
             }
         }, 3000);

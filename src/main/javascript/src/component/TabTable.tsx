@@ -23,6 +23,7 @@ const TabTable: React.FC<TabTableProps> = ({name, label, stockData}) => {
                 <tbody>
                 {
                     stockData.data.map((value, index) => {
+                        if(value == null) return null;
                         return (
                             <tr key={index}>
                                 <td>{value.date}</td>

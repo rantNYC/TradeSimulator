@@ -4,16 +4,16 @@ import com.example.tradesimulator.model.Stock;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.util.Date;
-import java.util.Set;
+import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 //TODO: Validate
 public class StockPayloadDto {
 
-    private final Date from;
-    private final Date to;
-    private final Set<Stock> stocks;
+    private final LocalDate from;
+    private final LocalDate to;
+    private final List<Stock> stocks;
 
 }

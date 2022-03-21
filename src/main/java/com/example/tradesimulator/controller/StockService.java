@@ -25,14 +25,17 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
 public class StockService {
 
-    private final DateTimeFormatter  DATE_FORMAT = DateTimeFormatter.ofPattern(("yyyy-MM-dd"));
+    private final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern(("yyyy-MM-dd"));
 
     private final WebClient webClient;
     private final StockRepository stockRepository;
@@ -58,10 +61,11 @@ public class StockService {
 
 
     public Publisher<StockInfo> retrieveStockInfo(StockPayloadDto stockPayload) {
+        log.debug("Stock payload:", stockPayload);
         List<Publisher<StockInfo>> results = new ArrayList<>();
         for (Stock stock : stockPayload.getStocks()) {
             try {
-                results.add(retrieveStockInfo(stock.getSymbol(), stockPayload.getFrom().substring(0,10), stockPayload.getTo().substring(0, 10)));
+                results.add(retrieveStockInfo(stock.getSymbol(), stockPayload.getFrom(), stockPayload.getTo()));
             } catch (ParseException e) {
                 log.error("Error Parsing Date Range for stock:" + stock.getSymbol());
                 return Mono.error(e);
@@ -78,8 +82,8 @@ public class StockService {
 
     //TODO: Retrieve name of ticker using api
     //https://api.marketstack.com/v1/tickers?access_key=YOUR_ACCESS_KEY
-    private Mono<StockInfo> retrieveStockInfo(String ticker, String fromDate, String toDate) throws ParseException {
-        if(!isValidDateRange(fromDate, toDate)){
+    private Mono<StockInfo> retrieveStockInfo(String ticker, LocalDate fromDate, LocalDate toDate) throws ParseException {
+        if (!isValidDateRange(fromDate, toDate)) {
             throw new IllegalArgumentException("From date cannot be after To date");
         }
 
@@ -103,38 +107,33 @@ public class StockService {
                 .doOnNext(stockInfo -> {
                     stockInfo.setTicker(ticker);
                     for (StockInfo.StockData data : stockInfo.getData()) {
-                        data.setDate(data.getDate().substring(0,10));
+                        data.setDate(data.getDate().substring(0, 10));
                         stockRepository.save(data);
                         log.info("Successfully saved {}", data);
                     }
                 });
     }
 
-    private boolean isValidDateRange(String fromDate, String toDate) {
-        LocalDate from = LocalDate.parse(fromDate, DATE_FORMAT);
-        LocalDate to = LocalDate.parse(toDate, DATE_FORMAT);
-        return from.isBefore(to);
+    private boolean isValidDateRange(LocalDate fromDate, LocalDate toDate) {
+        return fromDate.isBefore(toDate);
     }
 
-    private StockInfo loadDataFromDb(String ticker, String fromDate, String toDate) {
-       List<StockInfo.StockData> data = new ArrayList<>();
-        LocalDate start = LocalDate.parse(fromDate, DATE_FORMAT);
-        LocalDate end = LocalDate.parse(toDate, DATE_FORMAT);
+    private StockInfo loadDataFromDb(String ticker, LocalDate start, LocalDate end) {
+        List<StockInfo.StockData> data = new ArrayList<>();
 
         stockRepository.findAllBySymbol(ticker).ifPresentOrElse(stockList -> {
             Map<String, StockInfo.StockData> datesInDb = new HashMap<>();
-            for(StockInfo.StockData stockData : stockList){
+            for (StockInfo.StockData stockData : stockList) {
                 datesInDb.put(stockData.getDate(), stockData);
             }
 
             boolean storedInDb = true;
             for (LocalDate date = start; !start.isAfter(end) && !date.isAfter(end); date = date.plusDays(1)) {
-                if(!isWeekend(date) && !datesInDb.containsKey(date.toString())){
+                if (!isWeekend(date) && !datesInDb.containsKey(date.toString())) {
                     storedInDb = false;
                     data.clear();
                     break;
-                }
-                else{
+                } else {
                     data.add(datesInDb.get(date.toString()));
                 }
             }

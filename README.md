@@ -1,7 +1,7 @@
 #Project Dev Tools
     Java 11
     Node 16
-    Yarn 3.1
+    Yarn 1.22
 
 #How to run
 ##Client
@@ -10,4 +10,5 @@
     yarn start
 
 ##Server
+    Change the location of spring.datasource.url to a local path in application.yml
     Run TradeSimulatorApplication
