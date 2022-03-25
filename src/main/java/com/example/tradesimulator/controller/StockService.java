@@ -6,11 +6,9 @@ import com.example.tradesimulator.model.StockInfo;
 import com.example.tradesimulator.model.dto.StockPayloadDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,7 +27,6 @@ public class StockService {
         this.stockDataFetcher = stockDataFetcher;
 
     }
-
 
     public List<StockInfo> retrieveStockInfo(StockPayloadDto stockPayload) throws Exception {
         log.debug("Stock payload:", stockPayload);
@@ -59,7 +56,14 @@ public class StockService {
             return loadedFromDb;
         }
 
-        return stockDataFetcher.fetchDataFromSource(ticker, fromDate, toDate);
+        StockInfo stockInfo = stockDataFetcher.fetchDataFromSource(ticker, fromDate, toDate);
+        for (StockInfo.StockData data : stockInfo.getData()) {
+            data.setDate(data.getDate().substring(0, 10));
+            stockRepository.save(data);
+            log.debug("Successfully saved {}", data);
+        }
+
+        return stockInfo;
     }
 
     private boolean isValidDateRange(LocalDate fromDate, LocalDate toDate) {

@@ -24,4 +24,5 @@ public class StockController {
     public List<StockInfo> retrieveStockData(@Valid @RequestBody StockPayloadDto stockPayload) throws Exception {
         return stockService.retrieveStockInfo(stockPayload);
     }
+
 }

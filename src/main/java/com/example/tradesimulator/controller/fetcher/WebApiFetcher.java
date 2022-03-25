@@ -39,7 +39,7 @@ public class WebApiFetcher implements IStockDataFetcher {
 
     @Override
     public StockInfo fetchDataFromSource(String ticker, LocalDate fromDate, LocalDate toDate) {
-        return webClient.get()
+        StockInfo stockInfo = webClient.get()
                 .uri(uriBuilder ->
                         uriBuilder.path(stockServiceConfig.getPath())
                                 .queryParam("access_key", stockServiceConfig.getAccess_key())
@@ -50,5 +50,7 @@ public class WebApiFetcher implements IStockDataFetcher {
                                 .build())
                 .retrieve()
                 .bodyToMono(StockInfo.class).block(Duration.of(stockServiceConfig.getResponse(), ChronoUnit.SECONDS));
+        stockInfo.setTicker(ticker);
+        return stockInfo;
     }
 }
