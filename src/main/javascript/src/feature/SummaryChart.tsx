@@ -36,7 +36,7 @@ const SummaryChart: React.FC<SummaryChartProps> = ({data}) => {
             });
         });
 
-        return res.filter(value => !value.error);
+        return res.filter(value => !value.error).sort((a,b) => a.date > b.data ? 1 : -1);
     }
 
     const finalData = combineData(data);
