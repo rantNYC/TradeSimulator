@@ -1,6 +1,7 @@
 import React from "react";
 import {StockData} from "../feature/Summary";
 import {TabProps} from "../type/PageTypes";
+import SummaryChart from "../feature/SummaryChart";
 
 export interface TabTableProps extends TabProps{
     stockData: StockData,
@@ -10,6 +11,7 @@ const TabTable: React.FC<TabTableProps> = ({name, label, stockData}) => {
     return (
         <div className={`tab-${name}`}>
             <h2>{label}</h2>
+            <SummaryChart data={stockData}/>
             <table>
                 <thead>
                     <tr>

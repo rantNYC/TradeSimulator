@@ -10,10 +10,7 @@ import org.springframework.stereotype.Service;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.ChronoField;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -31,8 +28,13 @@ public class StockService {
     public List<StockInfo> retrieveStockInfo(StockPayloadDto stockPayload) throws Exception {
         log.debug("Stock payload:", stockPayload);
         List<StockInfo> results = new ArrayList<>();
+        //TODO: Multi thread call
         for (Stock stock : stockPayload.getStocks()) {
-            results.add(retrieveStockInfo(stock.getSymbol(), stockPayload.getFrom(), stockPayload.getTo()));
+            try{
+                results.add(retrieveStockInfo(stock.getSymbol(), stockPayload.getFrom(), stockPayload.getTo()));
+            } catch (Exception e){
+                log.error("Error while fetching: " + stock.getSymbol(), e);
+            }
         }
 
         if (results.size() == 0) {
@@ -53,11 +55,16 @@ public class StockService {
         StockInfo loadedFromDb = loadDataFromDb(ticker, fromDate, toDate);
         if (loadedFromDb.getData() != null && !loadedFromDb.getData().isEmpty()) {
             log.info("Stock {} was found in the database for range {} to {}", ticker, fromDate, toDate);
+            loadedFromDb.getData().removeIf(Objects::isNull);
             return loadedFromDb;
         }
 
         StockInfo stockInfo = stockDataFetcher.fetchDataFromSource(ticker, fromDate, toDate);
+        stockInfo.getData().removeIf(Objects::isNull);
+        stockInfo.getData().sort(Comparator.comparing(o -> LocalDate.parse(o.getDate().substring(0, 10))));
+        //TODO: Fix synchronization issue
         for (StockInfo.StockData data : stockInfo.getData()) {
+            if(data == null) continue;
             data.setDate(data.getDate().substring(0, 10));
             stockRepository.save(data);
             log.debug("Successfully saved {}", data);

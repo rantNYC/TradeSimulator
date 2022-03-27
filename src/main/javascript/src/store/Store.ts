@@ -1,9 +1,11 @@
 import {configureStore} from "@reduxjs/toolkit";
 import ErrorReducer from "./ErrorReducer";
+import StocksReducer from "./StocksReducer";
 
 export const store = configureStore({
     reducer: {
         errors: ErrorReducer,
+        stocks: StocksReducer,
     }
 })
 

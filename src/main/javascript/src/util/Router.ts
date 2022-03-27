@@ -1,10 +1,9 @@
-import {useParams} from "react-router-dom";
+const API = '/api';
+const STOCK = '/stock';
+const PARSER = '/parser';
+const CSV = '/csv'
 
-class Router {
-
-    static API = '/api';
-    static STOCK = this.API + '/stock';
-
-}
-
-export default Router;
+export const addRoute = (name: string) => API + name;
+export const stockRoute = addRoute(STOCK);
+export const addParserRoute = (ext:string) => addRoute(PARSER) + ext;
+export const csvParserRoute = addParserRoute(CSV);
