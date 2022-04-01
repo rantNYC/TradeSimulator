@@ -1,9 +1,9 @@
 import {StockInfo, StockPayload} from "../type/StockTypes";
-import React, {useCallback, useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {Navigate, useLocation} from "react-router-dom";
 import {ErrorMessage, PageStatus} from "../type/PageTypes";
 import {Loader} from "react-feather";
-import Router from "../util/Router";
+import {stockRoute} from "../util/Router";
 import axios, {AxiosError} from "axios";
 import Tabs from "../component/Tabs";
 import {TabTableProps} from "../component/TabTable";
@@ -24,45 +24,37 @@ const Summary = () => {
     const [status, setStatus] = useState<PageStatus>(PageStatus.Idle);
     const [data, setData] = useState<StockData[]>([])
 
-    const getData = useCallback(async (): Promise<StockData[] | ErrorMessage> => {
-        try {
-            const res = await axios.post<StockData[]>(
-                Router.STOCK,
-                payload,
-            );
-            return await res.data;
-        } catch (err) {
-            if (axios.isAxiosError(err)) {
-                const serverError = err as AxiosError<any>;
+    const getData = useCallback(async () => {
+        axios.post<StockData[]>(
+            stockRoute,
+            payload,
+        ).then(res => {
+            setData(res.data);
+            setStatus(PageStatus.Done);
+        }).catch(error => {
+            let errProp: ErrorMessage;
+            if (axios.isAxiosError(error)) {
+                const serverError = error as AxiosError<any>;
                 if (serverError && serverError.response) {
-                    return { error: `${serverError.response.data.message }` };
+                    errProp = {error: `${serverError.response.data.message}`};
+                } else {
+                    errProp = {error: "Something went wrong!"};
                 }
+            } else {
+                errProp = {error: "Something went wrong!"};
             }
-            return {error: "Something went wrong!"};
-        }
-    }, [payload]);
+            dispatch(addError(errProp))
+            setStatus(PageStatus.Error)
+        });
+    }, [dispatch, payload]);
 
 
     useEffect(() => {
-        (async () => {
-            if (payload !== null && status === PageStatus.Idle) {
-                setStatus(PageStatus.Pending);
-                const res = await getData();
-                if (Array.isArray(res)) {
-                    console.log("Results:", res);
-                    setData(res);
-                    setStatus(PageStatus.Done);
-                } else {
-                    dispatch(addError(res))
-                    setStatus(PageStatus.Error);
-                }
-            }
-        })();
-        return () => { // Runs when component will unmount
-            setData([]);
-            setStatus(() => PageStatus.Idle);
-        };
-    }, [getData, payload, dispatch]);
+        if (payload !== null && status === PageStatus.Idle) {
+            setStatus(PageStatus.Pending);
+            getData();
+        }
+    }, [getData, payload, status]);
 
     const createTabStockData = (stocks: StockData[]) => {
         let tabStockData: TabTableProps[] = [];
@@ -78,13 +70,13 @@ const Summary = () => {
         <div>
             {payload === undefined && <Navigate to={"/dashboard"}/>}
             {(status === PageStatus.Idle || status === PageStatus.Pending) && <Loader/>}
-            {(status === PageStatus.Error) && <Navigate to={"/dashboard"} />}
+            {(status === PageStatus.Error) && <Navigate to={"/dashboard"}/>}
             {status === PageStatus.Done &&
                 <div>
                     <Tabs
                         displayName='Stocks Summary'
-                        tabList={createTabStockData(data)}/>
-                    <SummaryChart data={data}/>
+                        tabList={createTabStockData(data)}
+                    />
                 </div>
             }
         </div>

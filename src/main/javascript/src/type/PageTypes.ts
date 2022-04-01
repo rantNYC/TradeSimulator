@@ -5,6 +5,12 @@ export enum PageStatus {
     Error
 }
 
+export enum InputMode {
+    Manual,
+    Automatic,
+    None
+}
+
 export type ErrorMessage = {
     error: string;
 };
