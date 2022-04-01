@@ -1,0 +1,21 @@
+form {
+  width: auto;
+  padding: 2rem;
+  border-radius: 1rem;
+  background-color: #15202B;
+  border: 4px solid #20303C;
+  display: grid;
+  grid-gap: 1rem;
+}
+
+.manual-dates {
+  display: inline-flex;
+  grid-gap: 1rem;
+}
+
+.manual-list{
+}
+
+.manual-submit {
+  margin: auto;
+}

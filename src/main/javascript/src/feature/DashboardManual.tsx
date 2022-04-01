@@ -5,6 +5,7 @@ import {useAppDispatch, useAppSelector} from "../store/StoreHooks";
 import {addError} from "../store/ErrorReducer";
 import {MinusCircle, PlusCircle} from "react-feather";
 import {addStockEmpty, removePosStock, stockSelector, updateStock} from "../store/StocksReducer";
+import './DashboardManual.scss'
 
 const DashboardManual = () => {
     const navigate = useNavigate();
@@ -64,22 +65,30 @@ const DashboardManual = () => {
     return (
         <>
             <form onSubmit={event => sendForm(event)}>
-                <div>
-                    <label>From: </label>
-                    <input type="date" pattern="yyyy-mm-dd" onChange={event => setFrom(new Date(event.target.value))}/>
+                <div className="manual-dates">
+                    <div>
+                        <label>From: </label>
+                        <input type="date" pattern="yyyy-mm-dd"
+                               onChange={event => setFrom(new Date(event.target.value))}/>
+                    </div>
+                    <div>
+                        <label>To: </label>
+                        <input type="date" pattern="yyyy-mm-dd"
+                               onChange={event => setTo(new Date(event.target.value))}/>
+                    </div>
                 </div>
-                <div>
-                    <label>To: </label>
-                    <input type="date" pattern="yyyy-mm-dd" onChange={event => setTo(new Date(event.target.value))}/>
+                <div className="manual-list">
+                    <ul>
+                        {
+                            stocks.map((value, index) => {
+                                return addNewRow(value, index);
+                            })
+                        }
+                    </ul>
                 </div>
-                <ul>
-                    {
-                        stocks.map((value, index) => {
-                            return addNewRow(value, index);
-                        })
-                    }
-                </ul>
-                <button>Submit</button>
+                <div className="manual-submit">
+                    <button>Submit</button>
+                </div>
             </form>
         </>
     )
