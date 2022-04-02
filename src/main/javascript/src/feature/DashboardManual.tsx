@@ -87,7 +87,7 @@ const DashboardManual = () => {
                     </ul>
                 </div>
                 <div className="manual-submit">
-                    <button>Submit</button>
+                    <button className="dashboard-btn">Submit</button>
                 </div>
             </form>
         </>

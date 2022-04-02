@@ -36,20 +36,20 @@ const Dashboard = () => {
 
     return (
         <React.Fragment>
+            <ErrorDisplay removeMessage={removeMessage}/>
             <div className="content">
                 <div className="input-header">
                     <h2>Input method</h2>
                 </div>
                 <div className="grid">
-                    <button onClick={() => toggleMode(InputMode.Manual)}>Manual</button>
-                    <button onClick={() => toggleMode(InputMode.Automatic)}>Automatic</button>
+                    <button className="dashboard-btn" onClick={() => toggleMode(InputMode.Manual)}>Manual</button>
+                    <button className="dashboard-btn" onClick={() => toggleMode(InputMode.Automatic)}>Automatic</button>
                 </div>
                 <div className="input-content">
                     {inputMode === InputMode.Manual && <DashboardManual/>}
                     {inputMode === InputMode.Automatic && <DashboardAutomatic/>}
                 </div>
             </div>
-            <ErrorDisplay removeMessage={removeMessage}/>
         </React.Fragment>
     );
 };

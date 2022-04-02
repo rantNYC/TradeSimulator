@@ -1,0 +1,31 @@
+.table-data{
+  margin: 1rem auto;
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+  display: table;
+  border: 1px solid rgb(62, 68, 70);
+}
+
+.table-data td, .table-data th {
+  padding: 0.5rem 0.5rem;
+  display: table-cell;
+  text-align: left;
+  vertical-align: top;
+}
+
+.table-data tr {
+  border-bottom: 1px solid rgb(58, 62, 65);
+}
+
+.table-data tr:nth-child(even) {
+  background-color: rgb(36, 39, 41);
+}
+
+.table-data tr:nth-child(odd) {
+  background-color: rgb(24, 26, 27);
+}
+
+.table-data th:first-child, .table-data td:first-child {
+  padding-left: 16px;
+}
