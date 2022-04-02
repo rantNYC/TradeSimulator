@@ -1,5 +1,124 @@
+@-webkit-keyframes active {
+  from {
+    box-shadow: 0 4px 3px 1px #FCFCFC, 0 6px 8px #D6D7D9, 0 -4px 4px #CECFD1, 0 -6px 4px #FEFEFE, inset 0 0 10px 0px rgba(0, 0, 250, 0.6);
+  }
+  to {
+    box-shadow: 0 4px 3px 1px #FCFCFC, 0 6px 8px #D6D7D9, 0 -4px 4px #CECFD1, 0 -6px 4px #FEFEFE, inset 0 0 3px 3px #CECFD1;
+  }
+}
+@keyframes active {
+  from {
+    box-shadow: 0 4px 3px 1px #FCFCFC, 0 6px 8px #D6D7D9, 0 -4px 4px #CECFD1, 0 -6px 4px #FEFEFE, inset 0 0 10px 0px rgba(0, 0, 250, 0.6);
+  }
+  to {
+    box-shadow: 0 4px 3px 1px #FCFCFC, 0 6px 8px #D6D7D9, 0 -4px 4px #CECFD1, 0 -6px 4px #FEFEFE, inset 0 0 3px 3px #CECFD1;
+  }
+}
+.dashboard-btn,
+.dashboard-btn:before,
+.dashboard-btn:after {
+  box-sizing: border-box;
+}
+
+.grid {
+  width: calc( 100vw - 50px );
+  display: flex;
+  justify-content: center;
+  padding-left: 1rem;
+  align-items: center;
+  grid-gap: 3rem;
+}
+
+.dashboard-btn,
+[role=button] {
+  -webkit-appearance: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+  cursor: pointer;
+  width: 100px;
+  height: 25px;
+  background-image: linear-gradient(to top, #D8D9DB 0%, #fff 80%, #FDFDFD 100%);
+  border-radius: 30px;
+  border: 1px solid #8F9092;
+  box-shadow: 0 4px 3px 1px #FCFCFC, 0 6px 8px #D6D7D9, 0 -4px 4px #CECFD1, 0 -6px 4px #FEFEFE, inset 0 0 3px 0 #CECFD1;
+  transition: all 0.2s ease;
+  font-family: "Source Sans Pro", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #606060;
+  text-shadow: 0 1px #fff;
+}
+.dashboard-btn::-moz-focus-inner,
+[role=button]::-moz-focus-inner {
+  border: 0;
+}
+.dashboard-btn > *,
+[role=button] > * {
+  transition: transform 0.2s ease;
+}
+.dashboard-btn:hover:not([disabled]),
+[role=button]:hover:not([disabled]) {
+  box-shadow: 0 4px 3px 1px #FCFCFC, 0 6px 8px #D6D7D9, 0 -4px 4px #CECFD1, 0 -6px 4px #FEFEFE, inset 0 0 3px 3px #CECFD1;
+}
+.dashboard-btn:hover:not([disabled]) > *,
+[role=button]:hover:not([disabled]) > * {
+  transform: scale(0.975);
+}
+.dashboard-btn:focus:not(:active),
+[role=button]:focus:not(:active) {
+  -webkit-animation: active 0.9s alternate infinite;
+  animation: active 0.9s alternate infinite;
+  outline: none;
+}
+.dashboard-btn:active:not([disabled]),
+[role=button]:active:not([disabled]) {
+  box-shadow: 0 4px 3px 1px #FCFCFC, 0 6px 8px #D6D7D9, 0 -4px 4px #CECFD1, 0 -6px 4px #FEFEFE, inset 0 0 5px 3px #999, inset 0 0 30px #aaa;
+}
+.dashboard-btn:active:not([disabled]) > *,
+[role=button]:active:not([disabled]) > * {
+  transform: scale(0.95);
+}
+.dashboard-btn:disabled,
+[role=button]:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.dashboard-btn.icon,
+[role=button].icon {
+  width: 50px;
+}
+.dashboard-btn.icon svg,
+[role=button].icon svg {
+  margin-top: 3px;
+  width: 30px;
+  height: 30px;
+}
+//End of .dashboard-btn
+
 ul {
   list-style-type: none;
+}
+
+.input-header{
+  justify-content: center;
+  display: flex;
+}
+
+.input-content{
+  align-content: center;
+  justify-content: center;
+  display: flex;
+}
+
+.content{
+  display: flex;
+  flex-direction: column;
 }
 
 .stock {

@@ -2,8 +2,9 @@ import React from "react";
 import {StockData} from "../feature/Summary";
 import {TabProps} from "../type/PageTypes";
 import SummaryChart from "../feature/SummaryChart";
+import './TabTable.scss'
 
-export interface TabTableProps extends TabProps{
+export interface TabTableProps extends TabProps {
     stockData: StockData,
 }
 
@@ -12,20 +13,20 @@ const TabTable: React.FC<TabTableProps> = ({name, label, stockData}) => {
         <div className={`tab-${name}`}>
             <h2>{label}</h2>
             <SummaryChart data={stockData}/>
-            <table>
+            <table className="table-data">
                 <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Ticker</th>
-                        <th>Open</th>
-                        <th>Close</th>
-                        <th>Dividend</th>
-                    </tr>
+                <tr>
+                    <th>Date</th>
+                    <th>Ticker</th>
+                    <th>Open</th>
+                    <th>Close</th>
+                    <th>Dividend</th>
+                </tr>
                 </thead>
                 <tbody>
                 {
                     stockData.data.map((value, index) => {
-                        if(value == null) return null;
+                        if (value == null) return null;
                         return (
                             <tr key={index}>
                                 <td>{value.date}</td>

@@ -9,7 +9,6 @@ import Tabs from "../component/Tabs";
 import {TabTableProps} from "../component/TabTable";
 import {useAppDispatch} from "../store/StoreHooks";
 import {addError} from "../store/ErrorReducer";
-import SummaryChart from "./SummaryChart";
 
 export interface StockData {
     data: StockInfo[],

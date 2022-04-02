@@ -6,8 +6,9 @@ import {addError} from "../store/ErrorReducer";
 import {addStocks} from "../store/StocksReducer";
 import {Stock} from "../type/StockTypes";
 import {PageStatus} from "../type/PageTypes";
-import {Loader} from "react-feather";
+import {Loader, Upload} from "react-feather";
 import DashboardManual from "./DashboardManual";
+import './DashboardAutomatic.scss';
 
 const DashboardAutomatic = () => {
 
@@ -41,13 +42,16 @@ const DashboardAutomatic = () => {
 
     return (
         <>
-            <h4>Enter csv file with stock info</h4>
             <div>
-                <input
-                    type="file"
-                    accept=".csv,.xlsx,.xls"
-                    onChange={handleFileUpload}
-                />
+                <div className="automatic-upload">
+                    <label htmlFor="file-upload" className="custom-file-upload">
+                        <Upload/>
+                        <div className="automatic-label">
+                            Csv file with stock info
+                        </div>
+                    </label>
+                    <input id="file-upload" type="file" onChange={handleFileUpload}/>
+                </div>
                 {status === PageStatus.Pending && <Loader/>}
                 {status === PageStatus.Done && <DashboardManual/>}
             </div>

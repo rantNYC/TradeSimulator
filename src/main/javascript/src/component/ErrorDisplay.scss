@@ -1,9 +1,13 @@
 .error {
+  background-color: #9c2b2e;
   display: flex;
   align-items: center;
   justify-content: center;
+  border: 1px solid rgba(253, 138, 138, 0.55);
+  border-radius: 30px;
 
   &-close {
+    margin-left: 1rem;
     :hover {
       cursor: pointer;
     }
