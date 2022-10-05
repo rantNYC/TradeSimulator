@@ -29,7 +29,7 @@ const TabTable: React.FC<TabTableProps> = ({name, label, stockData}) => {
                         if (value == null) return null;
                         return (
                             <tr key={index}>
-                                <td>{value.date}</td>
+                                <td>{value.date.toString()}</td>
                                 <td>{value.symbol}</td>
                                 <td>{value.open}</td>
                                 <td>{value.close}</td>

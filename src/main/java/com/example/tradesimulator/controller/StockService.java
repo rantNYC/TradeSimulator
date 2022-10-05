@@ -1,6 +1,7 @@
 package com.example.tradesimulator.controller;
 
 import com.example.tradesimulator.controller.fetcher.IStockDataFetcher;
+import com.example.tradesimulator.exceptions.StockInfoNotFound;
 import com.example.tradesimulator.model.Stock;
 import com.example.tradesimulator.model.StockInfo;
 import com.example.tradesimulator.model.dto.StockPayloadDto;
@@ -11,6 +12,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.ChronoField;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -25,8 +27,8 @@ public class StockService {
 
     }
 
-    public List<StockInfo> retrieveStockInfo(StockPayloadDto stockPayload) throws Exception {
-        log.debug("Stock payload:", stockPayload);
+    public List<StockInfo> retrieveStockInfo(StockPayloadDto stockPayload) throws StockInfoNotFound {
+        log.debug("Stock payload: {}", stockPayload);
         List<StockInfo> results = new ArrayList<>();
         //TODO: Multi thread call
         for (Stock stock : stockPayload.getStocks()) {
@@ -39,7 +41,8 @@ public class StockService {
 
         if (results.size() == 0) {
             //TODO: Custom exceptions
-            throw new Exception("Stock Results not found");
+            throw new StockInfoNotFound(stockPayload.getStocks().stream().
+                                    map(Stock::getSymbol).collect(Collectors.toList()));
         }
 
         return results;
@@ -47,7 +50,7 @@ public class StockService {
 
     //TODO: Retrieve name of ticker using api
     //https://api.marketstack.com/v1/tickers?access_key=YOUR_ACCESS_KEY
-    private StockInfo retrieveStockInfo(String ticker, LocalDate fromDate, LocalDate toDate) {
+    private StockInfo retrieveStockInfo(String ticker, LocalDate fromDate, LocalDate toDate) throws StockInfoNotFound {
         if (!isValidDateRange(fromDate, toDate)) {
             throw new IllegalArgumentException("From date cannot be after To date");
         }

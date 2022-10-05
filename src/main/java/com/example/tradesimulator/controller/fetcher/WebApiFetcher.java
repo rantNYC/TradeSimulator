@@ -1,6 +1,7 @@
 package com.example.tradesimulator.controller.fetcher;
 
 import com.example.tradesimulator.configuration.StockServiceConfig;
+import com.example.tradesimulator.exceptions.StockInfoNotFound;
 import com.example.tradesimulator.model.StockInfo;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
@@ -38,7 +39,7 @@ public class WebApiFetcher implements IStockDataFetcher {
     }
 
     @Override
-    public StockInfo fetchDataFromSource(String ticker, LocalDate fromDate, LocalDate toDate) {
+    public StockInfo fetchDataFromSource(String ticker, LocalDate fromDate, LocalDate toDate) throws StockInfoNotFound {
         StockInfo stockInfo = webClient.get()
                 .uri(uriBuilder ->
                         uriBuilder.path(stockServiceConfig.getPath())
@@ -50,6 +51,7 @@ public class WebApiFetcher implements IStockDataFetcher {
                                 .build())
                 .retrieve()
                 .bodyToMono(StockInfo.class).block(Duration.of(stockServiceConfig.getResponse(), ChronoUnit.SECONDS));
+        if(stockInfo == null) throw new StockInfoNotFound(ticker);
         stockInfo.setTicker(ticker);
         return stockInfo;
     }
